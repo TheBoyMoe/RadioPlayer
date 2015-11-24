@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="dimen_xsmall">4dp</dimen>
+    <dimen name="dimen_small">8dp</dimen>
+    <dimen name="dimen_normal">16dp</dimen>
+    <dimen name="dimen_medium">24dp</dimen>
+    <dimen name="dimen_large">32dp</dimen>
+    <dimen name="dimen_xlarge">48dp</dimen>
+    <dimen name="dimen_xxlarge">56dp</dimen>
+    <dimen name="dimen_xxxlarge">96dp</dimen>
+    <dimen name="dimen_thumbnail">70dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+</resources>
