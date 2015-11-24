@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Radio Player</string>
     <string name="category_logo">Category logo</string>
+    <string name="title_activity_station">StationActivity</string>
 </resources>

@@ -23,7 +23,6 @@ import de.greenrobot.event.EventBus;
 public class CategoryFragment extends Fragment{
 
     private ListView listview;
-    private CategoryAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,41 +62,8 @@ public class CategoryFragment extends Fragment{
     @SuppressWarnings("unused")
     public void onEventMainThread(DownloadCategoriesEvent event) {
         // bind the category list to the adapter and display
-        //setListAdapter(new CategoryAdapter(event.getCategories()));
         listview.setAdapter(new CategoryAdapter(event.getCategories()));
     }
-
-
-
-//    @Override
-//    public void onListItemClick(ListView listview, View view, int position, long id) {
-//        // retrieve the category object of the list item clicked on
-//        Category category = ((CategoryAdapter)getListAdapter()).getItem(position);
-//
-//        // post the category to the eventbus, retrieve in the hosting activity
-//        EventBus.getDefault().post(new PostCategoryEvent(category));
-//    }
-
-
-
-    // basic ArrayAdapter which displays the category object through the default textview
-//    private class CategoryAdapter extends ArrayAdapter<Category> {
-//
-//        // using the default TextView layout to display the category
-//        public CategoryAdapter(List<Category> items) {
-//            super(getActivity(), android.R.layout.simple_list_item_1, items);
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//
-//            View view = super.getView(position, convertView, parent);
-//            TextView title = (TextView) view.findViewById(android.R.id.text1);
-//            title.setText(getItem(position).toString());
-//
-//            return view;
-//        }
-//    }
 
 
     // ArrayAdapter which implements a custom list item and view holder pattern
