@@ -10,22 +10,35 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.CategoryActivity">
+
+        <activity
+            android:name=".ui.CategoryActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.StationActivity"
             android:label="@string/title_activity_station"
-            android:parentActivityName=".ui.CategoryActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop"
+            android:parentActivityName=".ui.CategoryActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.oandmdigital.radioplayer.ui.CategoryActivity"/>
         </activity>
+
+        <activity
+            android:name=".ui.PlayerActivity"
+            android:label="@string/title_activity_player"
+            android:parentActivityName=".ui.StationActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.oandmdigital.radioplayer.ui.StationActivity"/>
+        </activity>
+
     </application>
 
 </manifest>

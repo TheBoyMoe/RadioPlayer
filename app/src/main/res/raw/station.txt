@@ -1,0 +1,289 @@
+[
+    {
+        "id":14005,
+        "name":"ANRKRadio",
+        "country":"GB",
+        "image":{
+            "url":"https://cdn.devality.com/station/14005/anrkradio1.png",
+            "thumb":{
+                "url":"https://cdn.devality.com/station/14005/thumb_anrkradio1.png"
+            }
+        },
+        "slug":"anrkradio",
+        "website":"http://radio.anrkto.cf",
+        "categories":[
+            {
+                "id":4,
+                "title":"Talk \u0026 Speech",
+                "description":"talk \u0026 speech stations like normal talkshows and religous discuss.",
+                "slug":"talk-speech",
+                "ancestry":null
+            },
+            {
+                "id":5,
+                "title":"Pop",
+                "description":"stations that normally play pop-music",
+                "slug":"pop",
+                "ancestry":null
+            },
+            {
+                "id":17,
+                "title":"Top 40",
+                "description":"",
+                "slug":"top-40",
+                "ancestry":"5"
+            },
+            {
+                "id":44,
+                "title":"Misc",
+                "description":"Everything else.",
+                "slug":"misc",
+                "ancestry":null
+            },
+            {
+                "id":45,
+                "title":"Variety",
+                "description":"Variety or various, playing more or less everything.",
+                "slug":"variety",
+                "ancestry":"44"
+            }
+        ],
+        "streams":[
+            {
+                "stream":"http://95.154.254.129:3019/;?1448222317676.mp3?",
+                "bitrate":320,
+                "content_type":"audio/mpeg",
+                "status":0
+            }
+        ],
+        "created_at":"2015-11-24T21:48:13+01:00",
+        "updated_at":"2015-11-24T22:14:33+01:00"
+    },
+    {
+        "id":13991,
+        "name":"HOT105.7",
+        "country":"US",
+        "image":{
+            "url":"https://cdn.devality.com/station/13991/HOT1057_LOGO_NEW.jpg",
+            "thumb":{
+                "url":"https://cdn.devality.com/station/13991/thumb_HOT1057_LOGO_NEW.jpg"
+            }
+        },
+        "slug":"hot1057",
+        "website":"http://hot105worldwide.wix.com/hot105",
+        "categories":[
+            {
+                "id":2,
+                "title":"Rock",
+                "description":"simple rock. from elvis to metallica and like hardrock as iron maiden.",
+                "slug":"rock",
+                "ancestry":null
+            },
+            {
+                "id":3,
+                "title":"Dance",
+                "description":"dance music, the new from 80's and 90's, like bubblegum and more.",
+                "slug":"dance",
+                "ancestry":"14"
+            },
+            {
+                "id":5,
+                "title":"Pop",
+                "description":"stations that normally play pop-music",
+                "slug":"pop",
+                "ancestry":null
+            },
+            {
+                "id":10,
+                "title":"Rap",
+                "description":"50 Cent and more.",
+                "slug":"rap",
+                "ancestry":null
+            },
+            {
+                "id":14,
+                "title":"Electronic",
+                "description":"all computeriz made.",
+                "slug":"electronic",
+                "ancestry":null
+            },
+            {
+                "id":17,
+                "title":"Top 40",
+                "description":"",
+                "slug":"top-40",
+                "ancestry":"5"
+            },
+            {
+                "id":20,
+                "title":"Hip Hop",
+                "description":"",
+                "slug":"hip-hop",
+                "ancestry":"10"
+            },
+            {
+                "id":34,
+                "title":"R\u0026B/Urban",
+                "description":"",
+                "slug":"r-b-urban",
+                "ancestry":null
+            }
+        ],
+        "streams":[
+            {
+                "stream":"http://helium.shoutca.st:8072/128",
+                "bitrate":128,
+                "content_type":"audio/mpeg",
+                "status":1
+            },
+            {
+                "stream":"http://helium.shoutca.st:8072/stream",
+                "bitrate":64,
+                "content_type":"audio/mpeg",
+                "status":1
+            }
+        ],
+        "created_at":"2015-11-24T02:32:11+01:00",
+        "updated_at":"2015-11-24T02:37:29+01:00"
+    },
+    {},
+    {},
+    {}
+
+]
+
+
+-----------------------------------com.example.Category.java-----------------------------------
+
+package com.example;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Generated;
+
+@Generated("org.jsonschema2pojo")
+public class Category {
+
+    public Integer id;
+    public String title;
+    public String description;
+    public String slug;
+    public String ancestry;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+}
+-----------------------------------com.example.Example.java-----------------------------------
+
+package com.example;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Generated;
+
+@Generated("org.jsonschema2pojo")
+public class Station {
+
+    public Integer id;
+    public String name;
+    public String country;
+    public Image image;
+    public String slug;
+    public String website;
+    public List<Category> categories = new ArrayList<Category>();
+    public List<Stream> streams = new ArrayList<Stream>();
+    public String createdAt;
+    public String updatedAt;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+}
+-----------------------------------com.example.Image.java-----------------------------------
+
+package com.example;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Generated;
+
+@Generated("org.jsonschema2pojo")
+public class Image {
+
+    public String url;
+    public Thumb thumb;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+}
+-----------------------------------com.example.Stream.java-----------------------------------
+
+package com.example;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Generated;
+
+@Generated("org.jsonschema2pojo")
+public class Stream {
+
+    public String stream;
+    public Integer bitrate;
+    public String contentType;
+    public Integer status;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+}
+-----------------------------------com.example.Thumb.java-----------------------------------
+
+package com.example;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Generated;
+
+@Generated("org.jsonschema2pojo")
+public class Thumb {
+
+    public String url;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+}

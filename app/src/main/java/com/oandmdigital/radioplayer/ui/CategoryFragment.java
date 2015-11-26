@@ -2,6 +2,7 @@ package com.oandmdigital.radioplayer.ui;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +12,33 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.oandmdigital.radioplayer.R;
+import com.oandmdigital.radioplayer.common.LoggingFragment;
+import com.oandmdigital.radioplayer.event.CategoryOnClickEvent;
 import com.oandmdigital.radioplayer.event.DownloadCategoriesEvent;
-import com.oandmdigital.radioplayer.event.PostCategoryEvent;
 import com.oandmdigital.radioplayer.model.Category;
 import com.oandmdigital.radioplayer.network.DownloadCategoryThread;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class CategoryFragment extends Fragment{
+public class CategoryFragment extends LoggingFragment{
 
+    private static final String SAVED_CATEGORY_LIST = "list";
     private ListView listview;
+    private List<Category> items;
+    private CategoryAdapter adapter;
+
+
+    public static CategoryFragment newInstance() {
+
+        CategoryFragment fragment = new CategoryFragment();
+        // Bundle args = new Bundle();
+
+        return fragment;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,9 +55,18 @@ public class CategoryFragment extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Category category = (Category) parent.getItemAtPosition(position);
-                EventBus.getDefault().post(new PostCategoryEvent(category));
+                // pass the onClick event up to the hosting activity to deal with
+                EventBus.getDefault().post(new CategoryOnClickEvent(category));
             }
         });
+
+        // restore the category list from saved state on device rotation
+        if(savedInstanceState != null) {
+            List<Category> list = savedInstanceState.getParcelableArrayList(SAVED_CATEGORY_LIST);
+            adapter = new CategoryAdapter(list);
+            listview.setAdapter(adapter);
+        }
+
         return listview;
     }
 
@@ -62,7 +87,17 @@ public class CategoryFragment extends Fragment{
     @SuppressWarnings("unused")
     public void onEventMainThread(DownloadCategoriesEvent event) {
         // bind the category list to the adapter and display
-        listview.setAdapter(new CategoryAdapter(event.getCategories()));
+        items = event.getCategoryList();
+        adapter = new CategoryAdapter(items);
+        listview.setAdapter(adapter);
+    }
+
+
+    // save the items list on device configuration change
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SAVED_CATEGORY_LIST, (ArrayList<? extends Parcelable>) items);
     }
 
 
@@ -98,7 +133,6 @@ public class CategoryFragment extends Fragment{
 
             return convertView;
         }
-
     }
 
 

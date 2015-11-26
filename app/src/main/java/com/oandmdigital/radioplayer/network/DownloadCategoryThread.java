@@ -22,6 +22,8 @@ public class DownloadCategoryThread extends Thread{
     // http://api.dirble.com/v2/categories/primary?token=18572bdfe9011ea4a2af1c56eb
     // API Key : 18572bdfe9011ea4a2af1c56eb
 
+    private static final String LOG_TAG = "CATEGORY_THREAD";
+    private final boolean L = true;
 
     private static final String CATEGORY_URL =
             "http://api.dirble.com/v2/categories/primary?token=18572bdfe9011ea4a2af1c56eb";
@@ -30,6 +32,7 @@ public class DownloadCategoryThread extends Thread{
     public void run() {
         try {
             HttpURLConnection c = (HttpURLConnection) new URL(CATEGORY_URL).openConnection();
+            if(L) Log.d(LOG_TAG, CATEGORY_URL);
 
             try {
                 InputStream in = c.getInputStream();
@@ -41,6 +44,7 @@ public class DownloadCategoryThread extends Thread{
                 ArrayList<Category> categories = new ArrayList<>(Arrays.asList(data));
                 reader.close();
                 EventBus.getDefault().post(new DownloadCategoriesEvent(categories));
+                if(L) Log.d(LOG_TAG, "Posted category list to the event bus");
 
             } catch (IOException e) {
                 Log.e(getClass().getSimpleName(), "Exception parsing JSON", e);
