@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.oandmdigital.radioplayer.R;
-import com.oandmdigital.radioplayer.common.LoggingFragment;
 import com.oandmdigital.radioplayer.event.CategoryOnClickEvent;
 import com.oandmdigital.radioplayer.event.DownloadCategoriesEvent;
 import com.oandmdigital.radioplayer.model.Category;
@@ -23,7 +22,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class CategoryFragment extends LoggingFragment{
+public class CategoryFragment extends Fragment{
 
     private static final String SAVED_CATEGORY_LIST = "list";
     private ListView listview;

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.oandmdigital.radioplayer.R;
@@ -40,7 +41,10 @@ public class PlayerFragment extends LoggingFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.player, container, false);
         TextView textView = (TextView) view.findViewById(R.id.station_name);
+        ImageButton playStopBtn = (ImageButton) view.findViewById(R.id.play_stop_button);
+
         textView.setText(stn.getName());
+        playStopBtn.setImageResource(R.drawable.action_play); // default on start
 
         return view;
     }

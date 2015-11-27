@@ -39,6 +39,8 @@
                 android:value="com.oandmdigital.radioplayer.ui.StationActivity"/>
         </activity>
 
+        <service android:name=".service.RadioService"/>
+
     </application>
 
 </manifest>

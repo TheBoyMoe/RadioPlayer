@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.oandmdigital.radioplayer.R;
-import com.oandmdigital.radioplayer.common.LoggingFragment;
 import com.oandmdigital.radioplayer.event.DownloadStationsEvent;
 import com.oandmdigital.radioplayer.event.StationOnClickEvent;
 import com.oandmdigital.radioplayer.model.Category;
@@ -26,7 +24,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class StationFragment extends LoggingFragment {
+public class StationFragment extends Fragment {
 
     private static final String STATION_LIST = "station_list";
     public static final String CATEGORY_PARCELABLE = "category";
