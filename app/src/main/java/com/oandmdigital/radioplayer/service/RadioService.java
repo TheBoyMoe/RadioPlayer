@@ -3,9 +3,23 @@ package com.oandmdigital.radioplayer.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
-public class RadioService extends Service{
+import com.oandmdigital.radioplayer.event.IsPlayingEvent;
+import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
+import com.oandmdigital.radioplayer.model.Station;
+import com.oandmdigital.radioplayer.ui.PlayerFragment;
+
+import de.greenrobot.event.EventBus;
+
+public class RadioService extends Service {
+
+    private static final String LOG_TAG = "RadioService";
+    private Station stn;
+    private boolean isPlaying;
+    private boolean loadingComplete;
 
     @Override
     public void onCreate() {
@@ -16,15 +30,19 @@ public class RadioService extends Service{
 
     private void initMusicPlayer() {
         // TODO prepare and initialize the media player
+
+
+
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        // TODO retrieve the stn obj from the intent
-
-
+        // retrieve the stn obj from the intent
+        stn = intent.getParcelableExtra(PlayerFragment.STATION_PARCELABLE);
+        Log.i(LOG_TAG, stn.toString());
+        play(); // start mediaplayer
         return START_NOT_STICKY;
     }
 
@@ -38,12 +56,34 @@ public class RadioService extends Service{
 
 
     private void play() {
-        // TODO start the media player
+        if(!isPlaying) {
+            // TODO start the media player
+            Log.i(LOG_TAG, "Buffering audio");
+
+            // TODO post loading complete event
+            // simulate buffering radio before posting complete loading event
+            new BufferThread().start();
+            // Log.i(LOG_TAG, "Buffering complete, player started, posting event");
+            // EventBus.getDefault().post(new LoadingCompleteEvent(true));
+
+            // post isPlaying event
+            isPlaying = true;
+            EventBus.getDefault().post(new IsPlayingEvent(true));
+        }
     }
 
 
     private void stop() {
-        // TODO stop the media player
+        if(isPlaying) {
+            // TODO stop the media player
+            Log.i(LOG_TAG, "Player stopped, posting event");
+
+
+            //  post isPlaying event
+            isPlaying = false;
+            EventBus.getDefault().post(new IsPlayingEvent(false));
+        }
+
     }
 
 
@@ -51,6 +91,21 @@ public class RadioService extends Service{
     public void onDestroy() {
         super.onDestroy();
         stop();
+    }
+
+
+    private class BufferThread extends Thread {
+
+        @Override
+        public void run() {
+            if(!isInterrupted()) {
+                // simulate buffering radio before posting event complete
+                // sleep for 2secs before posting event
+                SystemClock.sleep(4000);
+                Log.i(LOG_TAG, "Buffering complete, player started, posting event");
+                EventBus.getDefault().post(new LoadingCompleteEvent(true));
+            }
+        }
     }
 
 

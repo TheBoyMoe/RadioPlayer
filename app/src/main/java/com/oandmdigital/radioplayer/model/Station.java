@@ -57,6 +57,11 @@ public class Station implements Parcelable {
 
 
     @Override
+    public String toString() {
+        return String.format("#%d %s %s", getId(), getName(), getCountry());
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
