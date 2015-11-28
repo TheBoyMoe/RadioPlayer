@@ -40,8 +40,7 @@ public class Stream implements Parcelable {
         dest.writeValue(this.status);
     }
 
-    public Stream() {
-    }
+    public Stream() {  }
 
     protected Stream(Parcel in) {
         this.stream = in.readString();

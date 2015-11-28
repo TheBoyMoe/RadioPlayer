@@ -17,6 +17,7 @@ import com.oandmdigital.radioplayer.R;
 import com.oandmdigital.radioplayer.common.LoggingFragment;
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
 import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
+import com.oandmdigital.radioplayer.event.RadioServiceEvent;
 import com.oandmdigital.radioplayer.model.Station;
 import com.oandmdigital.radioplayer.service.RadioService;
 
@@ -150,5 +151,28 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
         }
 
     }
+
+    // handle RadioService messages
+    @SuppressWarnings("unused")
+    public void onEventMainThread(RadioServiceEvent event) {
+        switch (event.getMessage()) {
+            case RadioServiceEvent.ERROR_BUFFERING_AUDIO:
+                Toast.makeText(getActivity(), "Error buffering audio", Toast.LENGTH_SHORT).show();
+                break;
+
+            case RadioServiceEvent.ERROR_NO_STREAM_FOUND:
+                Toast.makeText(getActivity(), "No stream found", Toast.LENGTH_SHORT).show();
+                break;
+
+            case RadioServiceEvent.ERROR_PLAYING_MEDIA:
+                Toast.makeText(getActivity(), "Error playing media", Toast.LENGTH_SHORT).show();
+                break;
+
+            case RadioServiceEvent.EVENT_STREAM_FINISHED:
+                Toast.makeText(getActivity(), "Stream finished", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
 
 }
