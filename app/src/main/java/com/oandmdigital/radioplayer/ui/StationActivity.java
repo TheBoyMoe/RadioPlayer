@@ -21,8 +21,8 @@ public class StationActivity extends AppCompatActivity {
         Category category = getIntent().getParcelableExtra(StationFragment.CATEGORY_PARCELABLE);
 
         // load the fragment into the default container
-        if(getFragmentManager().findFragmentById(android.R.id.content) == null) {
-            getFragmentManager().beginTransaction()
+        if(getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
+            getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, StationFragment.newInstance(category))
                     .addToBackStack("Category")
                     .commit();

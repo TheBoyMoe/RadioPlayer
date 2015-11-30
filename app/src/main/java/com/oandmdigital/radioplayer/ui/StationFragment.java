@@ -1,9 +1,10 @@
 package com.oandmdigital.radioplayer.ui;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +45,17 @@ public class StationFragment extends Fragment {
     }
 
 
+    public StationFragment() {}
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
         // retrieve the category object from the arguments bundle
-        category = getArguments().getParcelable(CATEGORY_PARCELABLE);
+        if(getArguments() != null)
+            category = getArguments().getParcelable(CATEGORY_PARCELABLE);
 
         if(category != null)
             // pass that object to the thread
@@ -76,8 +81,11 @@ public class StationFragment extends Fragment {
         // restore the station list from saved state on device rotation
         if(savedInstanceState != null) {
             List<Station> list = savedInstanceState.getParcelableArrayList(STATION_LIST);
-            adapter = new StationAdapter(list);
-            listview.setAdapter(adapter);
+            if(list != null) {
+                adapter = new StationAdapter(list);
+                listview.setAdapter(adapter);
+            }
+
         }
 
         return listview;

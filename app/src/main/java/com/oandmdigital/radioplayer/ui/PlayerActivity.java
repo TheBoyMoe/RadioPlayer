@@ -19,8 +19,8 @@ public class PlayerActivity extends AppCompatActivity {
         Station stn = getIntent().getParcelableExtra(PlayerFragment.STATION_PARCELABLE);
 
         // load the fragment into th default container
-        if(getFragmentManager().findFragmentById(android.R.id.content) == null) {
-            getFragmentManager().beginTransaction()
+        if(getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
+            getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, PlayerFragment.newInstance(stn))
                     .commit();
         }

@@ -1,8 +1,11 @@
 package com.oandmdigital.radioplayer.ui;
 
-import android.app.Fragment;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +25,9 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class CategoryFragment extends Fragment{
+public class CategoryFragment extends Fragment {
+
+    OnCategoryItemSelectedListener callback;
 
     private static final String SAVED_CATEGORY_LIST = "list";
     private ListView listview;
@@ -30,12 +35,14 @@ public class CategoryFragment extends Fragment{
     private CategoryAdapter adapter;
 
 
+    public interface OnCategoryItemSelectedListener {
+        void OnCategoryItemClickSelected(Category category);
+    }
+
+
     public static CategoryFragment newInstance() {
 
-        CategoryFragment fragment = new CategoryFragment();
-        // Bundle args = new Bundle();
-
-        return fragment;
+        return new CategoryFragment();
     }
 
 
@@ -54,8 +61,12 @@ public class CategoryFragment extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Category category = (Category) parent.getItemAtPosition(position);
+
                 // pass the onClick event up to the hosting activity to deal with
-                EventBus.getDefault().post(new CategoryOnClickEvent(category));
+                // EventBus.getDefault().post(new CategoryOnClickEvent(category));
+
+                // pass the onClick event up to the hosting activity via the interface
+                callback.OnCategoryItemClickSelected(category);
             }
         });
 
@@ -75,6 +86,7 @@ public class CategoryFragment extends Fragment{
         super.onResume();
         EventBus.getDefault().register(this);
     }
+
 
     @Override
     public void onPause() {
@@ -99,6 +111,25 @@ public class CategoryFragment extends Fragment{
         outState.putParcelableArrayList(SAVED_CATEGORY_LIST, (ArrayList<? extends Parcelable>) items);
     }
 
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // ensure that the hosting activity implements the interface
+        Activity activity;
+        if(context instanceof Activity) {
+            activity = (Activity) context;
+
+            try {
+                callback = (OnCategoryItemSelectedListener) activity;
+            }
+            catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString() + " must implement OnCategoryItemSelectedListener");
+            }
+        }
+
+    }
 
     // ArrayAdapter which implements a custom list item and view holder pattern
     private class CategoryAdapter extends ArrayAdapter<Category>{
