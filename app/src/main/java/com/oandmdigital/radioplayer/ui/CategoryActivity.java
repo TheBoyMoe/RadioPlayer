@@ -19,12 +19,21 @@ import de.greenrobot.event.EventBus;
 public class CategoryActivity extends AppCompatActivity implements
                 CategoryFragment.OnCategoryItemSelectedListener{
 
-    // added 'SingleTop' launch mode - stops the activity being destroyed
-    // and recreated with the fragment when navigating back to it using
-    // the 'Up arrow' from the child activity, eg StationActivity
+    /**
+        NOTES:
 
-    private CategoryFragment categories;
-    private StationFragment stations;
+        added 'SingleTop' launch mode - stops the activity being destroyed
+        and recreated with the fragment when navigating back to it using
+        the 'Up arrow' from the child activity, eg StationActivity.
+
+        Using the support.v4.app.Fragment version of the Fragment class
+        since onAttach(context) is not called in the SDK's Fragment class.
+
+     */
+
+
+    // private CategoryFragment categories;
+    // private StationFragment stations;
     private boolean dualPane;
 
     @Override
@@ -33,28 +42,30 @@ public class CategoryActivity extends AppCompatActivity implements
         setContentView(R.layout.main);
 
         // instantiate the category fragment if it does not already exist
-        categories = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.category_list);
-        if(categories == null) {
+        //categories = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.category_list);
+        if(getSupportFragmentManager().findFragmentById(R.id.category_list) == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.category_list, CategoryFragment.newInstance())
                     .commit();
         }
-        // TODO add an empty fragment prompting the user to click on a category item
 
-        // instantiate station fragment on tablet devices
-//        stations = (StationFragment) getSupportFragmentManager().findFragmentById(R.id.station_list);
-//        if(stations == null && findViewById(R.id.station_list) != null) {
-//            Log.d("DEBUG", "instantiating station fragment");
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.station_list, new StationFragment())
-//                    .commit();
-//        }
-
-        // is this a phone or tablet
+        // is this a phone or tablet?
         if(findViewById(R.id.station_list) != null) {
-            dualPane = true;
+            dualPane = true; // tablet
         }
 
+        // add an empty fragment prompting the user to click on a category
+        // item on tablet devices when first launched
+        if(savedInstanceState == null) {
+
+            // stations = (StationFragment) getSupportFragmentManager().findFragmentById(R.id.station_list);
+            if(findViewById(R.id.station_list) != null) {
+                Log.i("DEBUG", "instantiating empty station fragment");
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.station_list, EmptyStationFragment.newInstance())
+                        .commit();
+            }
+        }
     }
 
 
@@ -85,9 +96,8 @@ public class CategoryActivity extends AppCompatActivity implements
     @Override
     public void OnCategoryItemClickSelected(Category category) {
 
-        // on a tablet
         if(dualPane) {
-            // replace the current empty station fragment
+            // on a tablet replace the current station fragment
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.station_list, StationFragment.newInstance(category))
                     .commit();

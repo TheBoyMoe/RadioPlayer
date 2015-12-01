@@ -3,4 +3,5 @@
     <string name="category_logo">Category logo</string>
     <string name="title_activity_station">StationActivity</string>
     <string name="title_activity_player">PlayerActivity</string>
+    <string name="empty_station_fragment_text">Select a category to get started</string>
 </resources>
