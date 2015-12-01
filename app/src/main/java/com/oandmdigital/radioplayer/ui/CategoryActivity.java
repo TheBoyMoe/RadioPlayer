@@ -27,13 +27,11 @@ public class CategoryActivity extends AppCompatActivity implements
         the 'Up arrow' from the child activity, eg StationActivity.
 
         Using the support.v4.app.Fragment version of the Fragment class
-        since onAttach(context) is not called in the SDK's Fragment class.
+        since onAttach(context) is not called in the SDK's Fragment class
+        in API < 23
 
      */
 
-
-    // private CategoryFragment categories;
-    // private StationFragment stations;
     private boolean dualPane;
 
     @Override
@@ -42,7 +40,6 @@ public class CategoryActivity extends AppCompatActivity implements
         setContentView(R.layout.main);
 
         // instantiate the category fragment if it does not already exist
-        //categories = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.category_list);
         if(getSupportFragmentManager().findFragmentById(R.id.category_list) == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.category_list, CategoryFragment.newInstance())
@@ -58,7 +55,6 @@ public class CategoryActivity extends AppCompatActivity implements
         // item on tablet devices when first launched
         if(savedInstanceState == null) {
 
-            // stations = (StationFragment) getSupportFragmentManager().findFragmentById(R.id.station_list);
             if(findViewById(R.id.station_list) != null) {
                 Log.i("DEBUG", "instantiating empty station fragment");
                 getSupportFragmentManager().beginTransaction()
@@ -101,6 +97,7 @@ public class CategoryActivity extends AppCompatActivity implements
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.station_list, StationFragment.newInstance(category))
                     .commit();
+
         } else {
             // on a phone fetch the category object corresponding to the list item clicked
             // bundle it into an intent and launch the Station activity

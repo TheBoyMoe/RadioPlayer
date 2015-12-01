@@ -23,7 +23,7 @@ public class DownloadCategoryThread extends Thread{
     // API Key : 18572bdfe9011ea4a2af1c56eb
 
     private static final String LOG_TAG = "CATEGORY_THREAD";
-    private final boolean L = true;
+    private final boolean L = false;
 
     private static final String CATEGORY_URL =
             "http://api.dirble.com/v2/categories/primary?token=18572bdfe9011ea4a2af1c56eb";

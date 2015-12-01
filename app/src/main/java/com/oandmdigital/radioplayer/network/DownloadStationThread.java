@@ -22,7 +22,7 @@ import de.greenrobot.event.EventBus;
 public class DownloadStationThread extends Thread{
 
     private static final String LOG_TAG = "STATION_THREAD";
-    private final boolean L = true;
+    private final boolean L = false;
 
     private static final String CATEGORY_URL = "http://api.dirble.com/v2/category/";
     private static final String QUERY = "/stations?";

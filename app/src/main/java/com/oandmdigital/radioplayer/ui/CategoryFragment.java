@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -57,6 +58,7 @@ public class CategoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         listview = (ListView) inflater.inflate(R.layout.list_view, container, false);
+
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -67,8 +69,10 @@ public class CategoryFragment extends Fragment {
 
                 // pass the onClick event up to the hosting activity via the interface
                 callback.OnCategoryItemClickSelected(category);
+
             }
         });
+
 
         // restore the category list from saved state on device rotation
         if(savedInstanceState != null) {
@@ -78,6 +82,17 @@ public class CategoryFragment extends Fragment {
         }
 
         return listview;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getActivity().getSupportFragmentManager().findFragmentById(R.id.station_list) != null) {
+            // in dual pane layout, enable single list items to be selected
+            // set choice_mode_single on ListView in xml to affect phone/tablet
+            listview.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        }
     }
 
 
@@ -112,6 +127,7 @@ public class CategoryFragment extends Fragment {
     }
 
 
+    // onAttach() only called in API <23 when using support.v4.app.Fragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

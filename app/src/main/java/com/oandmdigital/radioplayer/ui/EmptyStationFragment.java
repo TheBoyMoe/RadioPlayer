@@ -26,4 +26,5 @@ public class EmptyStationFragment extends Fragment {
 
         return text;
     }
+
 }
