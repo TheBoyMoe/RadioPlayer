@@ -33,7 +33,8 @@
 
         <activity
             android:name=".ui.PlayerActivity"
-            android:label="@string/title_activity_player"
+            android:label=""
+            android:theme="@style/TabletRadioPlayerTheme"
             android:parentActivityName=".ui.StationActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

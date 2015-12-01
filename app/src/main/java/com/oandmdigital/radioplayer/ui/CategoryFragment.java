@@ -77,8 +77,10 @@ public class CategoryFragment extends Fragment {
         // restore the category list from saved state on device rotation
         if(savedInstanceState != null) {
             List<Category> list = savedInstanceState.getParcelableArrayList(SAVED_CATEGORY_LIST);
-            adapter = new CategoryAdapter(list);
-            listview.setAdapter(adapter);
+            if(list != null) {
+                adapter = new CategoryAdapter(list);
+                listview.setAdapter(adapter);
+            }
         }
 
         return listview;

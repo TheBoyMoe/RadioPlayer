@@ -9,7 +9,7 @@
         <item name="android:colorBackground">@color/colorBackground</item>
     </style>
 
-
-
+    <!-- Display PlayerActivity as a Dialog on large screens-->
+    <style name="TabletRadioPlayerTheme" parent="Theme.AppCompat.DialogWhenLarge"/>
 
 </resources>
