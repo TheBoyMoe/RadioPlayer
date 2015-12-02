@@ -14,12 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.oandmdigital.radioplayer.R;
-import com.oandmdigital.radioplayer.common.LoggingFragment;
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
 import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
 import com.oandmdigital.radioplayer.event.RadioServiceEvent;
 import com.oandmdigital.radioplayer.model.Station;
-import com.oandmdigital.radioplayer.service.RadioService;
+import com.oandmdigital.radioplayer.playback.PlaybackManager;
+import com.oandmdigital.radioplayer.playback.PlaybackService;
 
 import de.greenrobot.event.EventBus;
 
@@ -90,7 +90,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
 
-        Intent intent = new Intent(getActivity(), RadioService.class);
+        Intent intent = new Intent(getActivity(), PlaybackService.class);
         intent.putExtra(STATION_PARCELABLE, stn);
 
         if(!isPlaying) {
@@ -152,7 +152,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
 
     }
 
-    // handle RadioService messages
+    // handle PlaybackManager messages
     @SuppressWarnings("unused")
     public void onEventMainThread(RadioServiceEvent event) {
         switch (event.getMessage()) {

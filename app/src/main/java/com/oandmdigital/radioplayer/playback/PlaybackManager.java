@@ -1,12 +1,9 @@
-package com.oandmdigital.radioplayer.service;
+package com.oandmdigital.radioplayer.playback;
 
-import android.app.Service;
-import android.content.Intent;
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
@@ -14,30 +11,36 @@ import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
 import com.oandmdigital.radioplayer.event.RadioServiceEvent;
 import com.oandmdigital.radioplayer.model.Station;
 import com.oandmdigital.radioplayer.model.Stream;
-import com.oandmdigital.radioplayer.ui.PlayerFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-public class RadioService extends Service implements
+public class PlaybackManager implements
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener{
+        MediaPlayer.OnErrorListener {
 
-    private static final String LOG_TAG = "RadioService";
-    private Station stn;
+    private static final String LOG_TAG = "PlaybackManager";
+    //private Station stn;
     private boolean isPlaying;
     private MediaPlayer mediaPlayer;
+    private Context context;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+//    @Override
+//    public void onCreate() {
+//        super.onCreate();
+//
+//        // initialize and prepare the media mediaPlayer
+//        initMusicPlayer();
+//    }
 
-        // initialize and prepare the media mediaPlayer
+    public PlaybackManager(Context context) {
+        this.context = context;
         initMusicPlayer();
     }
+
 
     private void initMusicPlayer() {
 
@@ -49,36 +52,36 @@ public class RadioService extends Service implements
         mediaPlayer.setOnErrorListener(this);
 
         // tell the system it needs to stay on
-        mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        mediaPlayer.setWakeMode(context.getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
     }
 
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-        // retrieve the stn obj from the intent
-        stn = intent.getParcelableExtra(PlayerFragment.STATION_PARCELABLE);
-        Log.i(LOG_TAG, stn.toString());
-        play(); // start mediaplayer
-        return START_NOT_STICKY;
-    }
-
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//
+//        // retrieve the stn obj from the intent
+//        stn = intent.getParcelableExtra(PlayerFragment.STATION_PARCELABLE);
+//        Log.i(LOG_TAG, stn.toString());
+//        play(); // start mediaplayer
+//        return START_NOT_STICKY;
+//    }
 
 
-    private void play() {
+
+//    @Nullable
+//    @Override
+//    public IBinder onBind(Intent intent) {
+//        return null;
+//    }
+
+
+    public void play(Station stn) {
         if(!isPlaying && mediaPlayer != null) {
 
             // ensure there is only one media player
             stop();
 
-            String url = getStream();
+            String url = getStream(stn);
             if(url != null) {
                 try {
                     // download and buffer the stream on a background thread
@@ -98,7 +101,7 @@ public class RadioService extends Service implements
     }
 
 
-    private void stop() {
+    public void stop() {
         if(isPlaying && mediaPlayer != null) {
 
             // release the media mediaPlayer's resources
@@ -114,11 +117,11 @@ public class RadioService extends Service implements
     }
 
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stop();
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        stop();
+//    }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -150,7 +153,7 @@ public class RadioService extends Service implements
     }
 
 
-    private String getStream() {
+    private String getStream(Station stn) {
 
         String url = null;
         ArrayList<Stream> streams = (ArrayList<Stream>) stn.getStreams();

@@ -41,7 +41,7 @@
                 android:value="com.oandmdigital.radioplayer.ui.StationActivity"/>
         </activity>
 
-        <service android:name=".service.RadioService"/>
+        <service android:name=".playback.PlaybackService"/>
 
     </application>
 
