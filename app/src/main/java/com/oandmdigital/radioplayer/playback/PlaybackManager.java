@@ -1,9 +1,13 @@
 package com.oandmdigital.radioplayer.playback;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
@@ -27,8 +31,6 @@ public class PlaybackManager implements
     private static final String LOG_TAG = "PlaybackManager";
     private final boolean L = true;
     private boolean isPlaying;
-    // private boolean playOnFocusGain;
-    // private boolean isBuffering;
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
     private Context context;
@@ -58,16 +60,12 @@ public class PlaybackManager implements
     public void play(Station stn) {
         if(!isPlaying && mediaPlayer != null) {
 
-            // TODO ?
-            // stop();
-
             String url = getStream(stn);
             if(url != null) {
                 try {
                     // download and buffer the stream on a background thread
                     mediaPlayer.setDataSource(url);
                     mediaPlayer.prepareAsync();
-                    //isBuffering = true;
                     if(L) Log.i(LOG_TAG, "Buffering audio");
 
                 } catch (IOException e) {
@@ -99,31 +97,19 @@ public class PlaybackManager implements
             isPlaying = false;
             if(L) Log.i(LOG_TAG, "Player stopped, abandoned focus");
             EventBus.getDefault().post(new IsPlayingEvent(false));
+
+            // unregister the becomingNoisy broadcast receiver
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(becomingNoisy);
         }
 
     }
 
 
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        stop();
-        if(L) Log.i(LOG_TAG, "Stream has finished");
-        EventBus.getDefault().post(new PlaybackServiceEvent(PlaybackServiceEvent.EVENT_STREAM_FINISHED));
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        stop();
-        Log.e(LOG_TAG, "Media player has thrown an error");
-        EventBus.getDefault().post(new PlaybackServiceEvent(PlaybackServiceEvent.ERROR_PLAYING_MEDIA));
-        return false;
-    }
-
+    // start playback once buffering is complete and you've gained audio focus
     @Override
     public void onPrepared(MediaPlayer mp) {
 
         // buffering complete
-        //isBuffering = false;
         if(L) Log.i(LOG_TAG, "Buffering complete, mediaPlayer started");
         EventBus.getDefault().post(new LoadingCompleteEvent(true));
 
@@ -137,17 +123,38 @@ public class PlaybackManager implements
 
         // we've got focus so can start playing
         if(gotFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+
             if(L) Log.i(LOG_TAG, "Gained focus, starting playback");
             EventBus.getDefault().post(PlaybackServiceEvent.EVENT_GAINED_FOCUS);
             mediaPlayer.start();
-            // playOnFocusGain = false;
             isPlaying = true;
             EventBus.getDefault().post(new IsPlayingEvent(true));
+
+            // register an broadcast receiver which will listen for 'becoming noisy' broadcast
+            IntentFilter filter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+            LocalBroadcastManager.getInstance(context).registerReceiver(becomingNoisy, filter);
+
         } else {
             if(L) Log.i(LOG_TAG, "Can not gain focus");
             EventBus.getDefault().post(new PlaybackServiceEvent(PlaybackServiceEvent.EVENT_CANNOT_GAIN_FOCUS));
-            // playOnFocusGain = true;
         }
+    }
+
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        stop();
+        if(L) Log.i(LOG_TAG, "Stream has finished");
+        EventBus.getDefault().post(new PlaybackServiceEvent(PlaybackServiceEvent.EVENT_STREAM_FINISHED));
+    }
+
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        stop();
+        Log.e(LOG_TAG, "Media player has thrown an error");
+        EventBus.getDefault().post(new PlaybackServiceEvent(PlaybackServiceEvent.ERROR_PLAYING_MEDIA));
+        return false;
     }
 
 
@@ -156,15 +163,6 @@ public class PlaybackManager implements
     public void onAudioFocusChange(int focusChange) {
 
         // if we've lost focus, stop playback
-
-        //boolean gotFocus = false;
-        //boolean canDuck = false;
-
-        // if we've gained focus, play
-//        if(focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-//            gotFocus = true;
-//        }
-        // otherwise try and duck, if not simply stop
         if(focusChange == AudioManager.AUDIOFOCUS_LOSS ||
                 focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
                 focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK){
@@ -176,30 +174,10 @@ public class PlaybackManager implements
             stop();
         }
 
-//        if(gotFocus || canDuck) {
-//            // if we can duck, turn the volume down
-//            if(mediaPlayer != null) {
-//                if(playOnFocusGain) {
-//                    playOnFocusGain = false;
-//                    mediaPlayer.start();
-//                    isPlaying = true;
-//                    EventBus.getDefault().post(new IsPlayingEvent(true));
-//
-//                 }
-//                float volume = canDuck ? 0.2f : 1.0F;
-//                mediaPlayer.setVolume(volume, volume);
-//            }
-//
-//        }
-//        else {
-//            // lost focus and can't duck, stop playback
-//            stop();
-//            Log.i(LOG_TAG, "Losing focus, stopping playback");
-//        }
-
     }
 
 
+    // retrieve the stream url from the station object
     private String getStream(Station stn) {
 
         String url = null;
@@ -217,6 +195,16 @@ public class PlaybackManager implements
     }
 
 
+
+    // create a broadcast receiver that listens out for audio manager's becoming noisy intent
+    private BroadcastReceiver becomingNoisy = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // stop playback when the broadcast is received
+            stop();
+            Log.d(LOG_TAG, "Received becomingNoisy intent, stopping service");
+        }
+    };
 
 
 }

@@ -1,9 +1,14 @@
 package com.oandmdigital.radioplayer.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -148,8 +153,9 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     @SuppressWarnings("unused")
     public void onEventMainThread(IsPlayingEvent event) {
         //noinspection RedundantIfStatement
-        if(event.isPlaying())
+        if(event.isPlaying()) {
             isPlaying = true;
+        }
         else
             isPlaying = false;
     }
@@ -197,7 +203,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
 
             case PlaybackServiceEvent.EVENT_LOST_FOCUS:
                 // we've lost focus so reset the ui
-                Toast.makeText(getActivity(), "Lost focus, stopping playback", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getActivity(), "Lost focus, stopping playback", Toast.LENGTH_SHORT).show();
                 // hasFocus = false;
                 playStopBtn.setImageResource(R.drawable.action_play);
                 break;
