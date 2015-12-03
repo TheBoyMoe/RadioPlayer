@@ -16,9 +16,8 @@ import android.widget.Toast;
 import com.oandmdigital.radioplayer.R;
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
 import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
-import com.oandmdigital.radioplayer.event.RadioServiceEvent;
+import com.oandmdigital.radioplayer.event.PlaybackServiceEvent;
 import com.oandmdigital.radioplayer.model.Station;
-import com.oandmdigital.radioplayer.playback.PlaybackManager;
 import com.oandmdigital.radioplayer.playback.PlaybackService;
 
 import de.greenrobot.event.EventBus;
@@ -29,11 +28,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     private static final String IS_PLAYING = "isPlaying";
     private static final String LOADING_COMPLETE = "loadingComplete";
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
+    private final boolean L = true;
     private Station stn;
     private ImageButton playStopBtn;
     private ProgressBar progressBar;
     private boolean isPlaying = false;
     private boolean loadingComplete = true;
+    // private boolean hasFocus = false;
 
     public static PlayerFragment newInstance(Station station) {
 
@@ -73,13 +74,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
         }
 
         // set the appropriate playStopBtn & progress bar
-        if(isPlaying)
+        if(isPlaying || !loadingComplete)
             playStopBtn.setImageResource(R.drawable.action_stop);
         else
             playStopBtn.setImageResource(R.drawable.action_play);
 
         if(!loadingComplete)
-            progressBar.setVisibility(View.VISIBLE); // service is being buffered
+            progressBar.setVisibility(View.VISIBLE); // playback is being buffered
         else
             progressBar.setVisibility(View.INVISIBLE);
 
@@ -93,18 +94,30 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
         Intent intent = new Intent(getActivity(), PlaybackService.class);
         intent.putExtra(STATION_PARCELABLE, stn);
 
-        if(!isPlaying) {
+        if(!loadingComplete){
+            // stop playback service if still buffering
+            playStopBtn.setImageResource(R.drawable.action_play);
+            getActivity().stopService(intent);
+            loadingComplete = true; // default
+
+            // hide the progressbar if the user hits stop before the audio is buffered
+            if(progressBar.getVisibility() == View.VISIBLE)
+                progressBar.setVisibility(View.INVISIBLE);
+
+        }
+        else if(isPlaying) {
+            playStopBtn.setImageResource(R.drawable.action_play);
+            getActivity().stopService(intent);
+        }
+        else {
+            // neither buffering or playing
             playStopBtn.setImageResource(R.drawable.action_stop);
             progressBar.setVisibility(View.VISIBLE);
-            Log.d(LOG_TAG, "Launching Radio Service");
+            Toast.makeText(getActivity(), "Buffering audio", Toast.LENGTH_SHORT).show();
             loadingComplete = false;
-            // start Radio service
+            // start audio playback
             getActivity().startService(intent);
 
-        } else {
-            playStopBtn.setImageResource(R.drawable.action_play);
-            // stop Radio Service
-            getActivity().stopService(intent);
         }
     }
 
@@ -134,6 +147,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     // handle the isPlaying event
     @SuppressWarnings("unused")
     public void onEventMainThread(IsPlayingEvent event) {
+        //noinspection RedundantIfStatement
         if(event.isPlaying())
             isPlaying = true;
         else
@@ -154,23 +168,40 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
 
     // handle PlaybackManager messages
     @SuppressWarnings("unused")
-    public void onEventMainThread(RadioServiceEvent event) {
+    public void onEventMainThread(PlaybackServiceEvent event) {
         switch (event.getMessage()) {
-            case RadioServiceEvent.ERROR_BUFFERING_AUDIO:
+            case PlaybackServiceEvent.ERROR_BUFFERING_AUDIO:
                 Toast.makeText(getActivity(), "Error buffering audio", Toast.LENGTH_SHORT).show();
                 break;
 
-            case RadioServiceEvent.ERROR_NO_STREAM_FOUND:
+            case PlaybackServiceEvent.ERROR_NO_STREAM_FOUND:
                 Toast.makeText(getActivity(), "No stream found", Toast.LENGTH_SHORT).show();
                 break;
 
-            case RadioServiceEvent.ERROR_PLAYING_MEDIA:
+            case PlaybackServiceEvent.ERROR_PLAYING_MEDIA:
                 Toast.makeText(getActivity(), "Error playing media", Toast.LENGTH_SHORT).show();
                 break;
 
-            case RadioServiceEvent.EVENT_STREAM_FINISHED:
+            case PlaybackServiceEvent.EVENT_STREAM_FINISHED:
                 Toast.makeText(getActivity(), "Stream finished", Toast.LENGTH_SHORT).show();
                 break;
+
+            case PlaybackServiceEvent.EVENT_GAINED_FOCUS:
+                // hasFocus = true;
+                break;
+
+            case PlaybackServiceEvent.EVENT_CANNOT_GAIN_FOCUS:
+                Toast.makeText(getActivity(), "Cannot gain exclusive use of device audio", Toast.LENGTH_SHORT).show();
+                // hasFocus = false;
+                break;
+
+            case PlaybackServiceEvent.EVENT_LOST_FOCUS:
+                // we've lost focus so reset the ui
+                Toast.makeText(getActivity(), "Lost focus, stopping playback", Toast.LENGTH_SHORT).show();
+                // hasFocus = false;
+                playStopBtn.setImageResource(R.drawable.action_play);
+                break;
+
         }
     }
 
