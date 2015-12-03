@@ -43,6 +43,13 @@
 
         <service android:name=".playback.PlaybackService"/>
 
+        <receiver android:name=".event.MusicIntentReceiver">
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

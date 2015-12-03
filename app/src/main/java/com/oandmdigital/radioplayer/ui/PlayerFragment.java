@@ -39,7 +39,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     private ProgressBar progressBar;
     private boolean isPlaying = false;
     private boolean loadingComplete = true;
-    // private boolean hasFocus = false;
+    private Intent playbackIntent;
 
     public static PlayerFragment newInstance(Station station) {
 
@@ -96,13 +96,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
 
-        Intent intent = new Intent(getActivity(), PlaybackService.class);
-        intent.putExtra(STATION_PARCELABLE, stn);
+        playbackIntent = new Intent(getActivity(), PlaybackService.class);
+        playbackIntent.putExtra(STATION_PARCELABLE, stn);
 
         if(!loadingComplete){
             // stop playback service if still buffering
             playStopBtn.setImageResource(R.drawable.action_play);
-            getActivity().stopService(intent);
+            getActivity().stopService(playbackIntent);
             loadingComplete = true; // default
 
             // hide the progressbar if the user hits stop before the audio is buffered
@@ -112,7 +112,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
         }
         else if(isPlaying) {
             playStopBtn.setImageResource(R.drawable.action_play);
-            getActivity().stopService(intent);
+            getActivity().stopService(playbackIntent);
         }
         else {
             // neither buffering or playing
@@ -121,7 +121,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
             Toast.makeText(getActivity(), "Buffering audio", Toast.LENGTH_SHORT).show();
             loadingComplete = false;
             // start audio playback
-            getActivity().startService(intent);
+            getActivity().startService(playbackIntent);
 
         }
     }
@@ -176,6 +176,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     @SuppressWarnings("unused")
     public void onEventMainThread(PlaybackServiceEvent event) {
         switch (event.getMessage()) {
+
             case PlaybackServiceEvent.ERROR_BUFFERING_AUDIO:
                 Toast.makeText(getActivity(), "Error buffering audio", Toast.LENGTH_SHORT).show();
                 break;
@@ -208,8 +209,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
                 playStopBtn.setImageResource(R.drawable.action_play);
                 break;
 
+            case PlaybackServiceEvent.EVENT_BECOMING_NOISY:
+                // stop playback service when Becoming_Noisy intent is received
+                Toast.makeText(getActivity(), "Audio output changed, stopping playback", Toast.LENGTH_SHORT).show();
+                getActivity().stopService(playbackIntent);
+                break;
+
         }
     }
+
 
 
 }

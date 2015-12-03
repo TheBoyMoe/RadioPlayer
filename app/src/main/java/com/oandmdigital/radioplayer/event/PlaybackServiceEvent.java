@@ -10,6 +10,7 @@ public class PlaybackServiceEvent {
     public static final String EVENT_CANNOT_GAIN_FOCUS = "com.oandmdigital.radioplayer.event.EVENT_CANNOT_GAIN_FOCUS";
     public static final String EVENT_LOST_FOCUS = "com.oandmdigital.radioplayer.event.EVENT_LOST_FOCUS";
     public static final String EVENT_GAINED_FOCUS = "com.oandmdigital.radioplayer.event.EVENT_GAINED_FOCUS";
+    public static final String EVENT_BECOMING_NOISY = "com.oandmdigital.radioplayer.event.EVENT_BECOMING_NOISY";
 
     private String message;
 

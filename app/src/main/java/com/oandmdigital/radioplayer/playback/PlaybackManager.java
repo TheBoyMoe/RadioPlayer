@@ -99,7 +99,7 @@ public class PlaybackManager implements
             EventBus.getDefault().post(new IsPlayingEvent(false));
 
             // unregister the becomingNoisy broadcast receiver
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(becomingNoisy);
+            // LocalBroadcastManager.getInstance(context).unregisterReceiver(becomingNoisy);
         }
 
     }
@@ -131,8 +131,8 @@ public class PlaybackManager implements
             EventBus.getDefault().post(new IsPlayingEvent(true));
 
             // register an broadcast receiver which will listen for 'becoming noisy' broadcast
-            IntentFilter filter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-            LocalBroadcastManager.getInstance(context).registerReceiver(becomingNoisy, filter);
+            // IntentFilter filter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+            // LocalBroadcastManager.getInstance(context).registerReceiver(becomingNoisy, filter);
 
         } else {
             if(L) Log.i(LOG_TAG, "Can not gain focus");
@@ -197,14 +197,14 @@ public class PlaybackManager implements
 
 
     // create a broadcast receiver that listens out for audio manager's becoming noisy intent
-    private BroadcastReceiver becomingNoisy = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // stop playback when the broadcast is received
-            stop();
-            Log.d(LOG_TAG, "Received becomingNoisy intent, stopping service");
-        }
-    };
+//    private BroadcastReceiver becomingNoisy = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            // stop playback when the broadcast is received
+//            stop();
+//            Log.d(LOG_TAG, "Received becomingNoisy intent, stopping service");
+//        }
+//    };
 
 
 }
