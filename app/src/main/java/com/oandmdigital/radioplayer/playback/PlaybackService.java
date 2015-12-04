@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import com.oandmdigital.radioplayer.model.Station;
@@ -26,6 +27,12 @@ public class PlaybackService extends Service{
         return START_NOT_STICKY;
     }
 
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+    }
 
     @Override
     public void onDestroy() {

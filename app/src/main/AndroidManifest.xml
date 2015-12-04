@@ -41,8 +41,26 @@
                 android:value="com.oandmdigital.radioplayer.ui.StationActivity"/>
         </activity>
 
-        <service android:name=".playback.PlaybackService"/>
 
+        <!-- Playback Service - receives media button intent actions from the MediaButtonReceiver-->
+        <service
+            android:name=".playback.PlaybackService"
+            android:exported="false">
+            <intent-filter>
+                <!-- receives intent in the service's onStartCommand() -->
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </service>
+
+
+        <!-- MediaButtonReceiver - part of appcompat, broadcasts any headphone and bluetooth controls MediaButton actions -->
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- MusicIntentReceiver - responsible for receiving becoming noisy intents from the system-->
         <receiver android:name=".event.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY"/>

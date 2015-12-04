@@ -153,9 +153,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
     @SuppressWarnings("unused")
     public void onEventMainThread(IsPlayingEvent event) {
         //noinspection RedundantIfStatement
-        if(event.isPlaying()) {
+        if(event.isPlaying())
             isPlaying = true;
-        }
         else
             isPlaying = false;
     }
@@ -169,8 +168,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener{
             loadingComplete = true;
             progressBar.setVisibility(View.INVISIBLE);
         }
-
     }
+
 
     // handle PlaybackManager messages
     @SuppressWarnings("unused")
