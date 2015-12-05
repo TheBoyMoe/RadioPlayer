@@ -1,8 +1,10 @@
-package com.oandmdigital.radioplayer.event;
+package com.oandmdigital.radioplayer.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.oandmdigital.radioplayer.event.PlaybackServiceEvent;
 
 import de.greenrobot.event.EventBus;
 

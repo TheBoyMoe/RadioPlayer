@@ -1,13 +1,10 @@
 package com.oandmdigital.radioplayer.playback;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.oandmdigital.radioplayer.event.IsPlayingEvent;
@@ -34,10 +31,20 @@ public class PlaybackManager implements
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
     private Context context;
+    private final PlaybackStateCallback playbackStateCallback;
+    private int playbackState;
 
 
-    public PlaybackManager(Context context) {
+    // the service when instantiating the Playback manager will pass in a state
+    // object so the playback manager can communicate with the session
+    public interface PlaybackStateCallback {
+        void onPlaybackStateChange(PlaybackStateCompat state);
+    }
+
+
+    public PlaybackManager(Context context, PlaybackStateCallback callback) {
         this.context = context;
+        playbackStateCallback = callback;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         initMusicPlayer();
     }
@@ -81,8 +88,12 @@ public class PlaybackManager implements
     }
 
 
-    public void stop() {
+    public void stop()  {
         if(mediaPlayer != null) {
+
+            // update playback state
+            playbackState = PlaybackStateCompat.STATE_STOPPED;
+            updatePlaybackState();
 
             // give up audio focus
             audioManager.abandonAudioFocus(this);
@@ -119,7 +130,7 @@ public class PlaybackManager implements
                 AudioManager.AUDIOFOCUS_GAIN
         );
 
-        // we've got focus so can start playing
+        // if we've got focus, we can start playing
         if(gotFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
 
             if(L) Log.i(LOG_TAG, "Gained focus, starting playback");
@@ -127,6 +138,10 @@ public class PlaybackManager implements
             mediaPlayer.start();
             isPlaying = true;
             EventBus.getDefault().post(new IsPlayingEvent(true));
+
+            // and update playback state
+            playbackState = PlaybackStateCompat.STATE_PLAYING;
+            updatePlaybackState();
 
         } else {
             if(L) Log.i(LOG_TAG, "Can not gain focus");
@@ -188,5 +203,17 @@ public class PlaybackManager implements
         return url;
     }
 
+
+    private void updatePlaybackState() {
+        if(playbackStateCallback == null)
+            return;
+
+        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
+        // define the available actions
+        long actions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP;
+        stateBuilder.setActions(actions);
+        stateBuilder.setState(playbackState, 0, 1.0f);
+        playbackStateCallback.onPlaybackStateChange(stateBuilder.build());
+    }
 
 }

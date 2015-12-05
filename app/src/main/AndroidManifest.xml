@@ -61,7 +61,7 @@
         </receiver>
 
         <!-- MusicIntentReceiver - responsible for receiving becoming noisy intents from the system-->
-        <receiver android:name=".event.MusicIntentReceiver">
+        <receiver android:name=".receiver.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
             </intent-filter>
