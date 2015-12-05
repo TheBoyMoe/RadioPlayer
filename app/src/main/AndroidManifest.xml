@@ -45,6 +45,7 @@
         <!-- Playback Service - receives media button intent actions from the MediaButtonReceiver-->
         <service
             android:name=".playback.PlaybackService"
+            android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <!-- receives intent in the service's onStartCommand() -->
