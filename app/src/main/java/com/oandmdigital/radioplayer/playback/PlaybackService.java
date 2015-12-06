@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
@@ -20,17 +19,17 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
-import com.oandmdigital.radioplayer.model.Station;
-import com.oandmdigital.radioplayer.ui.PlayerFragment;
+import com.oandmdigital.radioplayer.event.LoadingCompleteEvent;
 
 import java.io.IOException;
-import java.net.BindException;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * References:
  * [1] https://www.youtube.com/watch?v=XQwe30cZffg BigAndroid BBQ 2015 - media player the right way by Ian Lake
  * [2] http://www.code-labs.io/codelabs/android-music-player/index.html#0
- * [3] MarshmallowFM google docs
+ * [3] Even Halley https://github.com/emuneee/MarshmallowFM
  */
 public class PlaybackService extends Service implements
         MediaPlayer.OnCompletionListener,
@@ -73,7 +72,6 @@ public class PlaybackService extends Service implements
 
         @Override
         public void onPlayFromSearch(String query, Bundle extras) {
-            if(L) Log.i(LOG_TAG, "Calling onPlayFromSearch()");
             Uri uri = extras.getParcelable(STATION_URI);
             onPlayFromUri(uri, extras);
         }
@@ -82,28 +80,27 @@ public class PlaybackService extends Service implements
         @Override
         public void onPlayFromUri(Uri uri, Bundle extras) {
 
-            if(L) Log.i(LOG_TAG, "Calling onPlayFromUri()");
             String name = extras.getString(STATION_NAME);
 
             try {
                 switch (playbackState.getState()) {
                     case PlaybackStateCompat.STATE_NONE:
                     case PlaybackStateCompat.STATE_STOPPED:
-                        // buffer the audio
+
                         mediaPlayer.reset();
                         mediaPlayer.setDataSource(PlaybackService.this, uri);
                         mediaPlayer.prepareAsync();
                         if(L) Log.i(LOG_TAG, "Buffering audio");
                         // set the playback state & set the audio's metadata
                         playbackState = new PlaybackStateCompat.Builder()
-                                .setState(PlaybackStateCompat.STATE_CONNECTING, 0, 1.0f)
+                                .setState(PlaybackStateCompat.STATE_BUFFERING, 0, 1.0f)
                                 .build();
                         mediaSession.setPlaybackState(playbackState);
                         mediaSession.setMetadata(new MediaMetadataCompat.Builder()
                                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                                 .build());
                         break;
-                    case PlaybackStateCompat.STATE_PLAYING:
+                    default:
                         // stop
                         mediaPlayer.stop();
                         playbackState = new PlaybackStateCompat.Builder()
@@ -136,7 +133,9 @@ public class PlaybackService extends Service implements
 
         @Override
         public void onStop() {
-            if(playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            int state = playbackState.getState();
+            if(state == PlaybackStateCompat.STATE_PLAYING ||
+                    state == PlaybackStateCompat.STATE_BUFFERING) {
                 if(L) Log.i(LOG_TAG, "Calling onStop()");
                 mediaPlayer.stop();
                 playbackState = new PlaybackStateCompat.Builder()
@@ -144,6 +143,10 @@ public class PlaybackService extends Service implements
                         .build();
                 mediaSession.setPlaybackState(playbackState);
                 updateNotification();
+
+                // post the stop event so the progress bar can be hidden
+                if(state == PlaybackStateCompat.STATE_BUFFERING)
+                    EventBus.getDefault().post(new LoadingCompleteEvent(true));
             }
         }
     };
@@ -204,7 +207,7 @@ public class PlaybackService extends Service implements
         mediaSession.setPlaybackState(playbackState);
         mediaPlayer.reset();
 
-        // TODO post event to bus
+        // TODO post event to bus - hide progressbar if error thrown in the middle of buffering
         return false;
     }
 
@@ -219,7 +222,8 @@ public class PlaybackService extends Service implements
         mediaSession.setPlaybackState(playbackState);
         updateNotification();
 
-        // TODO post event to bus to hide progress bar
+        // post event to bus to hide progress bar
+        EventBus.getDefault().post(new LoadingCompleteEvent(true));
     }
 
 
@@ -259,7 +263,6 @@ public class PlaybackService extends Service implements
     public void onDestroy() {
         super.onDestroy();
         if(L) Log.i(LOG_TAG, "Stopping playback service, releasing resources");
-        //playbackManager.stop();
         mediaPlayer.release();
         mediaSession.release();
     }

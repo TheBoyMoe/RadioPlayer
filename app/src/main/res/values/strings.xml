@@ -4,4 +4,5 @@
     <string name="title_activity_station">StationActivity</string>
     <string name="title_activity_player">PlayerActivity</string>
     <string name="empty_station_fragment_text">Select a category to get started</string>
+    <string name="dirble_api_key">18572bdfe9011ea4a2af1c56eb</string>
 </resources>

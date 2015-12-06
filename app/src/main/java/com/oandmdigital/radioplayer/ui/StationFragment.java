@@ -59,7 +59,7 @@ public class StationFragment extends Fragment {
 
         if(category != null)
             // pass that object to the thread
-            new DownloadStationThread("download_station_thread", category.getId()).start();
+            new DownloadStationThread("download_station_thread", getActivity().getApplicationContext(), category.getId()).start();
     }
 
 

@@ -51,7 +51,7 @@ public class CategoryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        new DownloadCategoryThread().start();
+        new DownloadCategoryThread("Download_category_thread", getActivity().getApplicationContext()).start();
     }
 
     @Override

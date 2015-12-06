@@ -1,9 +1,11 @@
 package com.oandmdigital.radioplayer.network;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.oandmdigital.radioplayer.R;
 import com.oandmdigital.radioplayer.event.DownloadStationsEvent;
 import com.oandmdigital.radioplayer.model.Station;
 
@@ -29,21 +31,23 @@ public class DownloadStationThread extends Thread{
 
     private int page = 1;
     private int resultsPerPage = 20;
-    private String token = "18572bdfe9011ea4a2af1c56eb";
+
     private final String PAGE_PARAM = "page";
     private final String RESULTS_PER_PAGE_PARAM = "per_page";
     private final String TOKEN_PARAM = "token";
 
     // build the url so that you can pass in the category id and the page number
     // private static final String STATION_URL =
-    //    "http://api.dirble.com/v2/category/5/stations?page=1&per_page=20&token=18572bdfe9011ea4a2af1c56eb";
+    //    "http://api.dirble.com/v2/category/5/stations?page=1&per_page=20&token=xxxx-xxxxxx-xxxxxx";
 
 
     private String categoryId;
+    private Context context;
 
-    public DownloadStationThread(String threadName, String categoryId) {
+    public DownloadStationThread(String threadName, Context context, String categoryId) {
         super(threadName);
         this.categoryId = categoryId;
+        this.context = context;
     }
 
     @Override
@@ -51,6 +55,7 @@ public class DownloadStationThread extends Thread{
 
         try {
             // build the query
+            String token = context.getResources().getString(R.string.dirble_api_key);
             Uri stationUri = Uri.parse(CATEGORY_URL + categoryId + QUERY).buildUpon()
                     .appendQueryParameter(PAGE_PARAM, Integer.toString(page))
                     .appendQueryParameter(RESULTS_PER_PAGE_PARAM, Integer.toString(resultsPerPage))

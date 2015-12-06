@@ -1,8 +1,10 @@
 package com.oandmdigital.radioplayer.network;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.oandmdigital.radioplayer.R;
 import com.oandmdigital.radioplayer.event.DownloadCategoriesEvent;
 import com.oandmdigital.radioplayer.model.Category;
 
@@ -19,20 +21,28 @@ import de.greenrobot.event.EventBus;
 
 public class DownloadCategoryThread extends Thread{
 
-    // http://api.dirble.com/v2/categories/primary?token=18572bdfe9011ea4a2af1c56eb
-    // API Key : 18572bdfe9011ea4a2af1c56eb
+    // http://api.dirble.com/v2/categories/primary?token=xxxxxxxxxx-xxxxxxx
 
     private static final String LOG_TAG = "CATEGORY_THREAD";
     private final boolean L = false;
 
-    private static final String CATEGORY_URL =
-            "http://api.dirble.com/v2/categories/primary?token=18572bdfe9011ea4a2af1c56eb";
+    private static final String BASE_URL =
+            "http://api.dirble.com/v2/categories/primary?token=";
+
+    private Context context;
+
+    public DownloadCategoryThread(String threadName, Context context) {
+        super(threadName);
+        this.context = context;
+    }
+
 
     @Override
     public void run() {
         try {
-            HttpURLConnection c = (HttpURLConnection) new URL(CATEGORY_URL).openConnection();
-            if(L) Log.d(LOG_TAG, CATEGORY_URL);
+            String token = context.getResources().getString(R.string.dirble_api_key);
+            HttpURLConnection c = (HttpURLConnection) new URL(BASE_URL + token).openConnection();
+            if(L) Log.d(LOG_TAG, BASE_URL + token);
 
             try {
                 InputStream in = c.getInputStream();
