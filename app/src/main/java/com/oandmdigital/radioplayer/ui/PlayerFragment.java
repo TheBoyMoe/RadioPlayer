@@ -87,7 +87,9 @@ public class PlayerFragment extends Fragment implements
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             super.onMetadataChanged(metadata);
-            stnName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+
+            // TODO NPE due to stnName returning null
+            //stnName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
         }
     };
 
@@ -125,6 +127,7 @@ public class PlayerFragment extends Fragment implements
         // TODO show/hide progress bar on buffering/completion
         progressBar.setVisibility(View.INVISIBLE);
 
+        //TODO maintaining correct playstop btn on device rotation
 
         ///////////////////////////////////////////////////////
 
@@ -160,22 +163,35 @@ public class PlayerFragment extends Fragment implements
 
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // TODO ?? unbind from the service
+        getActivity().getApplicationContext().unbindService(this);
+        if(L) Log.i(LOG_TAG, "Unbinding Playback Service");
+    }
+
+
+    @Override
     public void onClick(View v) {
 
-//        playbackIntent = new Intent(getActivity(), PlaybackService.class);
-//        playbackIntent.putExtra(STATION_PARCELABLE, stn);
-
-        Log.d(LOG_TAG, "media controller " + mediaController);
         if(mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_NONE ||
                 mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_STOPPED) {
 
-            Uri uri = Uri.parse(getStream(stn));
-            Bundle bundle = new Bundle();
-            bundle.putString(PlaybackService.STATION_NAME, stn.getName());
+            if(stn != null) {
+                Log.i(LOG_TAG, "Execute onClick");
+                Uri uri = Uri.parse(getStream(stn));
+                Bundle bundle = new Bundle();
+                bundle.putString(PlaybackService.STATION_NAME, stn.getName());
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                mediaController.getTransportControls().playFromUri(uri, bundle);
-            } else {
+                //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //    mediaController.getTransportControls().playFromUri(uri, bundle);
+                //} else {
+                //    bundle.putParcelable(PlaybackService.STATION_URI, uri);
+                //    mediaController.getTransportControls().playFromSearch("", bundle);
+                //}
+
+                // works on API's 16 - 23 on emulators
                 bundle.putParcelable(PlaybackService.STATION_URI, uri);
                 mediaController.getTransportControls().playFromSearch("", bundle);
             }
@@ -221,7 +237,6 @@ public class PlayerFragment extends Fragment implements
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
 
-        if(L) Log.d(LOG_TAG, "onServiceConnected() called");
         if (service instanceof PlaybackService.ServiceBinder) {
             try {
                 mediaController = new MediaControllerCompat(getActivity(),

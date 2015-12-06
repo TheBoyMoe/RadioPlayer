@@ -42,13 +42,15 @@ public class PlaybackService extends Service implements
     public static final String STATION_NAME = "Station_name";
     public static final String ACTION_PLAY = "play";
     public static final String ACTION_STOP = "stop";
+
     private static final String LOG_TAG = "PlaybackService";
     private final boolean L = true;
+
     private AudioManager audioManager;
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat playbackState;
     private MediaControllerCompat mediaController;
-    private Binder binder = new Binder();
+    private Binder binder = new ServiceBinder();
     private MediaPlayer mediaPlayer;
 
 
@@ -71,6 +73,7 @@ public class PlaybackService extends Service implements
 
         @Override
         public void onPlayFromSearch(String query, Bundle extras) {
+            if(L) Log.i(LOG_TAG, "Calling onPlayFromSearch()");
             Uri uri = extras.getParcelable(STATION_URI);
             onPlayFromUri(uri, extras);
         }
@@ -79,22 +82,25 @@ public class PlaybackService extends Service implements
         @Override
         public void onPlayFromUri(Uri uri, Bundle extras) {
 
-            String stnName = extras.getString(STATION_NAME);
+            if(L) Log.i(LOG_TAG, "Calling onPlayFromUri()");
+            String name = extras.getString(STATION_NAME);
 
             try {
                 switch (playbackState.getState()) {
                     case PlaybackStateCompat.STATE_NONE:
                     case PlaybackStateCompat.STATE_STOPPED:
                         // buffer the audio
+                        mediaPlayer.reset();
                         mediaPlayer.setDataSource(PlaybackService.this, uri);
                         mediaPlayer.prepareAsync();
+                        if(L) Log.i(LOG_TAG, "Buffering audio");
                         // set the playback state & set the audio's metadata
                         playbackState = new PlaybackStateCompat.Builder()
                                 .setState(PlaybackStateCompat.STATE_CONNECTING, 0, 1.0f)
                                 .build();
                         mediaSession.setPlaybackState(playbackState);
                         mediaSession.setMetadata(new MediaMetadataCompat.Builder()
-                                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, stnName)
+                                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                                 .build());
                         break;
                     case PlaybackStateCompat.STATE_PLAYING:
@@ -114,23 +120,24 @@ public class PlaybackService extends Service implements
         }
 
 
-        @Override
-        public void onPlay() {
-            if (playbackState.getState() == PlaybackStateCompat.STATE_STOPPED) {
-
-                mediaPlayer.start();
-                playbackState = new PlaybackStateCompat.Builder()
-                        .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f)
-                        .build();
-                mediaSession.setPlaybackState(playbackState);
-                updateNotification();
-            }
-        }
+//        @Override
+//        public void onPlay() {
+//            if (playbackState.getState() == PlaybackStateCompat.STATE_STOPPED) {
+//                if(L) Log.i(LOG_TAG, "Calling onPlay()");
+//                mediaPlayer.start();
+//                playbackState = new PlaybackStateCompat.Builder()
+//                        .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f)
+//                        .build();
+//                mediaSession.setPlaybackState(playbackState);
+//                updateNotification();
+//            }
+//        }
 
 
         @Override
         public void onStop() {
             if(playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                if(L) Log.i(LOG_TAG, "Calling onStop()");
                 mediaPlayer.stop();
                 playbackState = new PlaybackStateCompat.Builder()
                         .setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f)
@@ -140,8 +147,6 @@ public class PlaybackService extends Service implements
             }
         }
     };
-
-
 
 
     @Override
@@ -161,6 +166,7 @@ public class PlaybackService extends Service implements
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mediaSession.setPlaybackState(playbackState);
 
+        // TODO needs to be tied in to requesting audio focus
         //get instance to AudioManager
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -184,7 +190,10 @@ public class PlaybackService extends Service implements
                 .build();
         mediaSession.setPlaybackState(playbackState);
         mediaPlayer.reset();
+
+        // TODO post event to bus
     }
+
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -195,12 +204,14 @@ public class PlaybackService extends Service implements
         mediaSession.setPlaybackState(playbackState);
         mediaPlayer.reset();
 
+        // TODO post event to bus
         return false;
     }
 
+
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if(L) Log.i(LOG_TAG, "Audio playback starting");
+        if(L) Log.i(LOG_TAG, "Buffering complete, playback starting");
         mediaPlayer.start();
         playbackState = new PlaybackStateCompat.Builder()
                 .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f)
@@ -208,18 +219,22 @@ public class PlaybackService extends Service implements
         mediaSession.setPlaybackState(playbackState);
         updateNotification();
 
+        // TODO post event to bus to hide progress bar
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(L) Log.i(LOG_TAG, "Starting service");
         if (intent != null && intent.getAction() != null) {
 
             switch (intent.getAction()) {
                 case ACTION_PLAY:
+                    if(L) Log.i(LOG_TAG, "Calling play");
                     mediaController.getTransportControls().play();
                     break;
                 case ACTION_STOP:
+                    if(L) Log.i(LOG_TAG, "Calling stop");
                     mediaController.getTransportControls().stop();
                     break;
             }
@@ -243,7 +258,7 @@ public class PlaybackService extends Service implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(L) Log.i(LOG_TAG, "Stopping playback service");
+        if(L) Log.i(LOG_TAG, "Stopping playback service, releasing resources");
         //playbackManager.stop();
         mediaPlayer.release();
         mediaSession.release();
@@ -267,77 +282,8 @@ public class PlaybackService extends Service implements
 
     private void updateNotification() {
         // TODO to be implemented
-        Log.i(LOG_TAG, "Notification updated");
+        Log.i(LOG_TAG, "Notification updated, if one existed");
     }
-
-
-
-
-    //    @Override
-//    public int onStartCommand(Intent intent, int flags, int startId) {
-//
-//        if(intent != null) {
-//
-//            if(intent.hasExtra(PlayerFragment.STATION_PARCELABLE)) {
-//                if(L) Log.i(LOG_TAG, "Starting playback service");
-//                station = intent.getParcelableExtra(PlayerFragment.STATION_PARCELABLE);
-//            }
-//
-//            // receives and handles all media button key events and forwards
-//            // to the media session which deals with them in its callback methods
-//            MediaButtonReceiver.handleIntent(mediaSession, intent);
-//        }
-//
-//        //playbackManager = new PlaybackManager(this);
-//        //playbackManager.play(station);
-//
-//        return START_NOT_STICKY;
-//    }
-
-
-    // central point for controlling your media player
-//    final MediaSessionCompat.Callback sessionCallback = new MediaSessionCompat.Callback() {
-//        @Override
-//        public void onPlay() {
-//            // set the session as the preferred media button receiver
-//            Log.i(LOG_TAG, "Launching onPlay");
-//            mediaSession.setActive(true);
-//            playbackManager.play(station);
-//
-//        }
-//
-//        @Override
-//        public void onStop() {
-//            mediaSession.setActive(false);
-//            stopSelf();
-//        }
-//
-//    };
-
-
-//    @Override
-//    public void onCreate() {
-//        super.onCreate();
-//
-//        // instantiate and configure the session object
-//        mediaSession = new MediaSessionCompat(this, LOG_TAG);
-//        mediaSession.setFlags(
-//                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-//                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-//        );
-//        mediaSession.setCallback(sessionCallback);
-//
-//        // instantiate the playback manager
-//        playbackManager = new PlaybackManager(this, new PlaybackManager.PlaybackStateCallback() {
-//            @Override
-//            public void onPlaybackStateChange(PlaybackStateCompat state) {
-//                mediaSession.setPlaybackState(state);
-//                if(L) Log.i(LOG_TAG, "Updating playback state on session");
-//            }
-//        });
-//
-//    }
-
 
 
 

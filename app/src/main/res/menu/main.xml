@@ -6,8 +6,7 @@
     <item
         android:id="@+id/action_size"
         android:title="Screen size"
-        android:icon="@android:drawable/ic_dialog_info"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/action_settings"
