@@ -8,6 +8,8 @@ This is an ongoing project and has not been fully tested:
 * Incorporate Retrofit and Picasso libraries
 * ...
 
+Project requires an api key, add it to the strings.xml file.
+
 Credit to
 * Android Big BBQ 2015 talk "Media player the right way" by Ian Lake.
     https://www.youtube.com/watch?v=XQwe30cZffg
