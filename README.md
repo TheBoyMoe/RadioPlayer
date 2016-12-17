@@ -3,12 +3,6 @@ Basic Radio Player which uses to the Dirble Radio Service to get a list of avail
 
 Uses MediaSessionCompat, PlaybackStateCompat and MediaControllerCompat to stream audio on devices supporting API 16+.
 
-This is an ongoing project and has not been fully tested:
-* Still to add a UI
-* Incorporate Retrofit and Picasso libraries
-* Add notifications
-* ...
-
 Project requires an api key, add it to the strings.xml file.
 
 Credit to
